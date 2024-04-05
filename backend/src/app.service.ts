@@ -1,17 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { abi } from './assets/GroupOneToken.json';
-import { createPublicClient, http } from 'viem';
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  formatEther,
+} from 'viem';
 import { sepolia } from 'viem/chains';
+import { privateKeyToAccount } from 'viem/accounts';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
   publicClient;
+  walletClient;
 
   constructor(private configService: ConfigService) {
     this.publicClient = createPublicClient({
       chain: sepolia,
       transport: http(this.configService.get<string>('RPC_ENDPOINT_URL')),
+    });
+
+    this.walletClient = createWalletClient({
+      chain: sepolia,
+      transport: http(this.configService.get<string>('RPC_ENDPOINT_URL')),
+      account: privateKeyToAccount(
+        `0x${this.configService.get<string>('PRIVATE_KEY')}`,
+      ),
     });
   }
 
@@ -39,7 +54,66 @@ export class AppService {
     return this.configService.get<string>('TOKEN_ADDRESS');
   }
 
-  getHello(): string {
-    return 'Hello World!';
+  async getTotalSupply() {
+    const totalSupply = await this.publicClient.readContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'totalSupply',
+    });
+
+    return formatEther(totalSupply);
+  }
+
+  async getTokenBalance(address: string) {
+    const tokenBalance = await this.publicClient.readContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'balanceOf',
+      args: [address],
+    });
+
+    return formatEther(tokenBalance);
+  }
+
+  async getTransactionReceipt(hash: string) {
+    const receipt = await this.publicClient.getTransactionReceipt({ hash });
+
+    return receipt;
+  }
+
+  async getServerWalletAddress() {
+    const walletAddresses = await this.walletClient.getAddresses();
+
+    return walletAddresses[0];
+  }
+
+  async checkMinterRole(address: string): Promise<boolean> {
+    const minterRoleHash = await this.publicClient.readContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'MINTER_ROLE',
+    });
+
+    const isMinter = await this.publicClient.readContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'hasRole',
+      args: [minterRoleHash, address],
+    });
+
+    return isMinter;
+  }
+
+  async mintTokens(address: string, value: number): Promise<string> {
+    const hash = await this.walletClient.writeContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'mint',
+      args: [address, value],
+    });
+
+    const receipt = await this.publicClient.waitForTransactionReceipt({ hash });
+
+    return receipt;
   }
 }
