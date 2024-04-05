@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Param, Query, Body } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MintTokenDto } from './dtos/mintToken.dto';
+import { DeployBallotDto } from './dtos/deployBallot.dto';
 
 @Controller()
 export class AppController {
@@ -52,4 +53,31 @@ export class AppController {
       result: await this.appService.mintTokens(body.address, body.value),
     };
   }
+
+  @Get('check-votes/:address')
+  async checkVotingPower(@Param('address') address: string) {
+    return { result: await this.appService.checkVotingPower(address) };
+  }
+
+  @Post('delegate-votes/:address')
+  async delegateVotingPower(@Param('address') address: string) {
+    return { result: await this.appService.delegateVotingPower(address) };
+  }
+
+  // --- Ballot Contract ---
+  @Post('deploy-ballot')
+  async deployBallotContract(@Body() deployBallotDto: DeployBallotDto) {
+    const { proposalNames, tokenContractAddress, targetBlockNumber } =
+      deployBallotDto;
+    return await this.appService.deployBallotContract(
+      proposalNames,
+      tokenContractAddress,
+      targetBlockNumber,
+    );
+  }
+
+  //TODO: getPastVotes ?
+  //TODO: getProposals ?
+  //TODO: castVote
+  //TODO: getWinningProposal
 }

@@ -4,7 +4,9 @@ import {
   createPublicClient,
   createWalletClient,
   http,
+  parseEther,
   formatEther,
+  toHex,
 } from 'viem';
 import { sepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -104,16 +106,53 @@ export class AppService {
     return isMinter;
   }
 
-  async mintTokens(address: string, value: number): Promise<string> {
+  async mintTokens(address: string, value: string): Promise<string> {
     const hash = await this.walletClient.writeContract({
       address: this.getContractAddress(),
       abi,
       functionName: 'mint',
-      args: [address, value],
+      args: [address, parseEther(value)],
     });
 
     const receipt = await this.publicClient.waitForTransactionReceipt({ hash });
 
     return receipt;
+  }
+
+  async checkVotingPower(address: string): Promise<string> {
+    const votingPower = await this.publicClient.readContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'getVotes',
+      args: [address],
+    });
+
+    return formatEther(votingPower);
+  }
+
+  async delegateVotingPower(address: string) {
+    const hash = await this.walletClient.writeContract({
+      address: this.getContractAddress(),
+      abi,
+      functionName: 'delegate',
+      args: [address],
+    });
+
+    const receipt = await this.publicClient.waitForTransactionReceipt({ hash });
+
+    return receipt;
+  }
+
+  async deployBallotContract(
+    proposalNames,
+    tokenContractAddress,
+    targetBlockNumber,
+  ) {
+    const proposalNamesBytes32 = proposalNames.map((prop) =>
+      toHex(prop, { size: 32 }),
+    );
+
+    const hash = await this.walletClient.deployContract({});
+    //TODO: needs abi, bytecode, account -> compile from scaffold-eth2 first ?
   }
 }

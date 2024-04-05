@@ -7,6 +7,6 @@ export class MintTokenDto {
     default: '0xB1c4bB25346ad3F3de0019AE75eEa1ADAce201e8',
   })
   address: string;
-  @ApiProperty({ type: Number, required: true, default: 1n })
-  value: number;
+  @ApiProperty({ type: String, required: true, default: '10' })
+  value: string;
 }
