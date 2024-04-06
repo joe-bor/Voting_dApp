@@ -23,5 +23,5 @@ export class DeployBallotDto {
     required: true,
     example: 12345678,
   })
-  targetBlockNumber: number;
+  targetBlockNumber: bigint;
 }

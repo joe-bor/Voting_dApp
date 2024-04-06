@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { abi } from './assets/GroupOneToken.json';
+import { abi as ballotABI, bytecode } from './assets/TokenizedBallot.json';
 import {
   createPublicClient,
   createWalletClient,
@@ -146,13 +147,32 @@ export class AppService {
   async deployBallotContract(
     proposalNames,
     tokenContractAddress,
-    targetBlockNumber,
+    targetBlockNumber?,
   ) {
     const proposalNamesBytes32 = proposalNames.map((prop) =>
       toHex(prop, { size: 32 }),
     );
+    const latestBlocknumber = (await this.publicClient.getBlockNumber()) - 10n;
 
-    const hash = await this.walletClient.deployContract({});
-    //TODO: needs abi, bytecode, account -> compile from scaffold-eth2 first ?
+    console.log('\nDeploying Ballot contract');
+    const hash = await this.walletClient.deployContract({
+      abi: ballotABI,
+      bytecode: bytecode as `0x${string}`,
+      args: [
+        proposalNamesBytes32,
+        tokenContractAddress,
+        targetBlockNumber ? (targetBlockNumber as BigInt) : latestBlocknumber,
+      ],
+    });
+    console.log('Transaction hash:', hash);
+    console.log('Waiting for confirmations...');
+    const receipt = await this.publicClient.waitForTransactionReceipt({ hash });
+    console.log(receipt);
+    console.log('Ballot contract deployed to:', receipt.contractAddress);
+
+    if (!receipt.contractAddress)
+      throw new Error('Contract not deployed: Address missing');
+
+    return receipt.contractAddress;
   }
 }
