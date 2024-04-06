@@ -98,6 +98,4 @@ export class AppController {
     return await this.appService.getWinningProposal(address);
   }
 }
-
-//TODO: getWinningProposal
-//TODO: getPastVotes ?
+//TODO: getPastVotes ? -> to calculate for how much unused voting power the user still has for the 'selected' ballot?

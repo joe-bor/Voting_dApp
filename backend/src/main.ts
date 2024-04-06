@@ -14,6 +14,7 @@ BigInt.prototype.toJSON = function () {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Week 4 Project - dApp API')
