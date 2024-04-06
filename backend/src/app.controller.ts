@@ -2,6 +2,7 @@ import { Controller, Get, Post, Param, Query, Body } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MintTokenDto } from './dtos/mintToken.dto';
 import { DeployBallotDto } from './dtos/deployBallot.dto';
+import { CastVoteDto } from './dtos/castVote.dto';
 
 @Controller()
 export class AppController {
@@ -76,8 +77,27 @@ export class AppController {
     );
   }
 
-  //TODO: getPastVotes ?
-  //TODO: getProposals ?
+  @Get('ballot-proposals/:address')
+  async getProposals(@Param('address') address: string) {
+    return await this.appService.getProposals(address);
+  }
+
   //TODO: castVote
-  //TODO: getWinningProposal
+  @Post('cast-vote/:address')
+  async castVote(@Body() body: CastVoteDto) {
+    const { ballotAddress, votingPowerAmount, proposalIndex } = body;
+    await this.appService.castVote(
+      ballotAddress,
+      votingPowerAmount,
+      proposalIndex,
+    );
+  }
+
+  @Get('winning-proposal/:address')
+  async getWinningProposal(@Param('address') address: string) {
+    return await this.appService.getWinningProposal(address);
+  }
 }
+
+//TODO: getWinningProposal
+//TODO: getPastVotes ?

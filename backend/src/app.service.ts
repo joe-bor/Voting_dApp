@@ -8,6 +8,8 @@ import {
   parseEther,
   formatEther,
   toHex,
+  hexToString,
+  size,
 } from 'viem';
 import { sepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -174,5 +176,42 @@ export class AppService {
       throw new Error('Contract not deployed: Address missing');
 
     return receipt.contractAddress;
+  }
+
+  async getProposals(address) {
+    const proposals = await this.publicClient.readContract({
+      address,
+      abi: ballotABI,
+      functionName: 'getAllProposals',
+    });
+
+    return proposals.map((proposal) => ({
+      proposalName: hexToString(proposal.name).replace(/\0/g, ''), // Remove null characters
+      proposalVoteCount: formatEther(proposal.voteCount),
+    }));
+  }
+
+  async castVote(ballotAddress, votingPowerAmount, proposalIndex) {
+    const hash = await this.walletClient.writeContract({
+      address: ballotAddress,
+      abi: ballotABI,
+      functionName: 'vote',
+      args: [proposalIndex, votingPowerAmount],
+    });
+
+    const receipt = await this.publicClient.waitForTransactionReceipt({ hash });
+    console.log(receipt);
+
+    return receipt;
+  }
+
+  async getWinningProposal(address: string) {
+    const winningProposal = await this.publicClient.readContract({
+      address,
+      abi: ballotABI,
+      functionName: 'winnerName',
+    });
+
+    return hexToString(winningProposal);
   }
 }
