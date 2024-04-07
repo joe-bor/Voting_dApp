@@ -1,4 +1,4 @@
-function MinterRole() {
+function TokenInteractions() {
   return (
     <>
       <div className="card w-96 bg-secondary text-primary-content ">
@@ -6,7 +6,7 @@ function MinterRole() {
           <h2 className="card-title">
             {" "}
             <div className="flex justify-center items-center space-x-2">
-              <p className="my-2 font-medium">Mint Tokens!</p>
+              <p className="my-2 font-medium">Token Interactions!</p>
             </div>
           </h2>
           <form action="">
@@ -31,4 +31,4 @@ function MinterRole() {
     </>
   );
 }
-export default MinterRole;
+export default TokenInteractions;

@@ -37,7 +37,7 @@ export class AppService {
 
   async getTokenName(): Promise<string> {
     const name = await this.publicClient.readContract({
-      address: this.getContractAddress() as `0x${string}`,
+      address: this.getContractAddress(),
       abi,
       functionName: 'name',
     });
@@ -47,7 +47,7 @@ export class AppService {
 
   async getTokenSymbol(): Promise<string> {
     const name = await this.publicClient.readContract({
-      address: this.getContractAddress() as `0x${string}`,
+      address: this.getContractAddress(),
       abi,
       functionName: 'symbol',
     });

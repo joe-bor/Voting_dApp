@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import BallotDetails from "./_components/BallotDetails";
-import MinterRole from "./_components/MinterRole";
+import TokenInteractions from "./_components/TokenInteractions";
 import UserStats from "./_components/UserStats";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
@@ -42,9 +42,9 @@ const Home: NextPage = () => {
         </div>
 
         <div className="flex flex-row justify-center gap-8 bg-base-300 w-full mt-8 px-8 py-12">
-          <UserStats />
+          <UserStats address={connectedAddress || ""} />
           <BallotDetails address={connectedAddress || ""} />
-          <MinterRole />
+          <TokenInteractions />
           {/* <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
             <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
               <BugAntIcon className="h-8 w-8 fill-secondary" />
