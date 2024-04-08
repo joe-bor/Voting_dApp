@@ -28,7 +28,8 @@ const Home: NextPage = () => {
           setIsViewingProposals={setIsViewingProposals}
         />
       )}
-      {isVoting && <VoteModal />}
+      {isVoting && <VoteModal isVoting={isVoting} setIsVoting={setIsVoting} ballotAddress={ballotAddress} />}
+
       <div className="flex items-center flex-col flex-grow pt-10">
         <div className="px-5">
           <h1 className="text-center">

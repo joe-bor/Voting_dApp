@@ -86,7 +86,7 @@ export class AppController {
   @Post('cast-vote/:address')
   async castVote(@Body() body: CastVoteDto) {
     const { ballotAddress, votingPowerAmount, proposalIndex } = body;
-    await this.appService.castVote(
+    return await this.appService.castVote(
       ballotAddress,
       votingPowerAmount,
       proposalIndex,

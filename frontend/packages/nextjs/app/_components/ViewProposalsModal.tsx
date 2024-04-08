@@ -23,12 +23,10 @@ function ViewProposalsModal({ isViewingProposals, setIsViewingProposals, ballotA
 
   useEffect(() => {
     if (!ballotAddress) return;
-    console.log({ ballotAddress });
     fetch(`http://localhost:3001/ballot-proposals/${ballotAddress}`)
       .then(res => res.json())
       .then(data => {
         setProposalList(data);
-        console.log(data);
       });
   }, [ballotAddress]);
 
