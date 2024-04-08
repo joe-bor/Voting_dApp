@@ -14,7 +14,7 @@ function TokenInteractions() {
               <div className="label">
                 <span className="label-text">Wallet Address</span>
               </div>
-              <input type="text" placeholder="0xq2bBw2..." className="input input-bordered w-full max-w-xs" />
+              <input type="text" placeholder="0xB36Ca00...14aFDd" className="input input-bordered w-full max-w-xs" />
             </label>
 
             <label className="form-control w-full max-w-xs">

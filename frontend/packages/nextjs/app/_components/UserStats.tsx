@@ -36,7 +36,7 @@ function UserStats({ address }: Props) {
       .then(data => {
         setVotingPower(data.result);
       });
-  }, []);
+  }, [address]);
 
   return (
     <>
