@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { abi } from "./TokenizedBallot.json";
+import { parseEther } from "viem";
+import { useContractWrite } from "wagmi";
 
 type Prop = {
   isVoting: boolean;
@@ -8,6 +11,11 @@ type Prop = {
 
 function VoteModal({ isVoting, setIsVoting, ballotAddress }: Prop) {
   const voteModalRef = useRef<HTMLDialogElement | null>(null);
+  const { write, data, isSuccess, isError, isLoading } = useContractWrite({
+    address: ballotAddress,
+    abi: abi,
+    functionName: "vote",
+  });
 
   useEffect(() => {
     if (voteModalRef.current) {
@@ -20,35 +28,10 @@ function VoteModal({ isVoting, setIsVoting, ballotAddress }: Prop) {
     const proposalIndexInput = e.currentTarget.elements[0] as HTMLInputElement;
     const voteAmountInput = e.currentTarget.elements[1] as HTMLInputElement;
 
-    const proposalIndex = Number(proposalIndexInput.value);
-    const votingPowerAmount = Number(voteAmountInput.value);
+    const proposalIndex = BigInt(proposalIndexInput.value);
+    const votingPowerAmount = parseEther(voteAmountInput.value);
 
-    const requestBody = {
-      ballotAddress,
-      votingPowerAmount,
-      proposalIndex,
-    };
-
-    try {
-      const response = await fetch(`http://localhost:3001/cast-vote/${ballotAddress}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("Vote cast successfully:", data);
-      // Handle successful voting here, possibly closing the modal or showing a success message
-      setIsVoting(false); // Close the modal after successful voting
-      // TODO: create a toast to tell user it was successful
-    } catch (error) {
-      console.error("Failed to cast vote:", error);
-    }
+    write({ args: [proposalIndex, votingPowerAmount] });
   };
 
   return (
@@ -72,7 +55,11 @@ function VoteModal({ isVoting, setIsVoting, ballotAddress }: Prop) {
               placeholder="Amount of votes"
               className="input input-bordered input-info w-full max-w-xs"
             />
-            <button className="btn btn-outline btn-accent mt-4">Cast Vote</button>
+            <button className="btn btn-outline btn-accent mt-4" disabled={isLoading}>
+              {" "}
+              Cast Vote
+            </button>
+            {isSuccess && data?.hash && <p>{data.hash}</p>}
           </form>
         </div>
       </dialog>
